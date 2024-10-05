@@ -50,7 +50,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color:CupertinoTheme.of(context).primaryColor,
+                    color: CupertinoTheme.of(context).primaryColor,
                     shadows: [
                       Shadow(
                         blurRadius: 10.0,
@@ -67,9 +67,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               child: Container(
                 width: double.infinity,
                 height: double.infinity,
-                decoration:  BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [CupertinoTheme.of(context).primaryColor,CupertinoTheme.of(context).primaryColor.withOpacity(0.8)],
+                    colors: [
+                      CupertinoTheme.of(context).primaryColor,
+                      CupertinoTheme.of(context).primaryColor.withOpacity(0.8),
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -198,27 +201,52 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                         // Set loading state to true
                                         currentRef.read(isLoadingProvider.notifier).state = true;
 
-                                        if (isRegistering) {
-                                          await currentRef
-                                              .read(authProvider.notifier)
-                                              .register(
-                                                _emailController.text,
-                                                _passwordController.text,
-                                                _usernameController.text,
-                                                _mobileNumberController.text,
-                                              );
-                                        } else {
-                                          await currentRef
-                                              .read(authProvider.notifier)
-                                              .signIn(
-                                                _emailController.text,
-                                                _passwordController.text,
-                                              );
+                                        bool success = false; // Flag to check if login/register was successful
+
+                                        try {
+                                          if (isRegistering) {
+                                            success = await currentRef
+                                                .read(authProvider.notifier)
+                                                .register(
+                                                  _emailController.text,
+                                                  _passwordController.text,
+                                                  _usernameController.text,
+                                                  _mobileNumberController.text,
+                                                );
+                                          } else {
+                                            success = await currentRef
+                                                .read(authProvider.notifier)
+                                                .signIn(
+                                                  _emailController.text,
+                                                  _passwordController.text,
+                                                );
+                                          }
+                                        } catch (e) {
+                                          // Handle exceptions and possibly show error messages
+                                          print(e);
+                                          // Show error message using ScaffoldMessenger
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text(e.toString()),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        } finally {
+                                          // Set loading state to false
+                                          currentRef.read(isLoadingProvider.notifier).state = false;
                                         }
 
-                                        // Check if the widget is still mounted before setting loading state to false
-                                        if (mounted) {
-                                          currentRef.read(isLoadingProvider.notifier).state = false;
+                                        // If the login or registration was successful, do something
+                                        if (success) {
+                                          // Optionally, navigate to another screen or show a success message
+                                        } else {
+                                          // If the email is already in use, show a snackbar
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: const Text('Email is already in use.'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
                                         }
                                       }
                                     },
