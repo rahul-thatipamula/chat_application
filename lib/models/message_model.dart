@@ -9,11 +9,10 @@ class MessageModel {
   MessageModel({this.id, this.sender, this.text, this.time});
 
   MessageModel.fromMap(Map<String, dynamic> data) {
-    id = data['id'];
+    id = data['messageId'];
     sender = data['sender'];
     text = data['text'];
-    time:
-    (data['time'] as Timestamp).toDate();
+    time=(data['time'] as Timestamp).toDate();
   }
 
   Map<String, dynamic> toMap() {

@@ -83,53 +83,58 @@ class _MessageBubbleState extends State<MessageBubble> {
                     .collection('chatrooms')
                     .doc(widget.chatRoom.chatRoomId)
                     .collection('messages')
-                    .orderBy('time', descending: false)
+                    .orderBy('time', descending: false) // Order by time ascending
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.active) {
                     if (snapshot.hasData) {
                       QuerySnapshot chatMessages = snapshot.data!;
                       return ListView.builder(
-                        reverse: true,
+                        // Set reverse to false for bottom-up display
+                        reverse: false,
                         itemCount: chatMessages.docs.length,
                         itemBuilder: (context, index) {
-                          MessageModel currentMessage = MessageModel.fromMap(
-                            chatMessages.docs[index].data() as Map<String, dynamic>,
-                          );
+                          final messageData = chatMessages.docs[index].data() as Map<String, dynamic>?;
 
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              mainAxisAlignment: currentMessage.sender == widget.currentUser.id
-                                  ? MainAxisAlignment.end
-                                  : MainAxisAlignment.start,
-                              children: [
-                                Container(
-                                  margin: EdgeInsets.only(
-                                    bottom: 6,
-                                    right: currentMessage.sender == widget.currentUser.id ? 10 : 0,
-                                    left: currentMessage.sender != widget.currentUser.id ? 10 : 0,
-                                  ),
-                                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                                  decoration: BoxDecoration(
-                                    color: currentMessage.sender == widget.currentUser.id
-                                        ? Colors.blue[200]
-                                        : Colors.green[200],
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  child: Text(
-                                    currentMessage.text!,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
+                          if (messageData != null) {
+                            MessageModel currentMessage = MessageModel.fromMap(messageData);
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                mainAxisAlignment: currentMessage.sender == widget.currentUser.id
+                                    ? MainAxisAlignment.end
+                                    : MainAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    margin: EdgeInsets.only(
+                                      bottom: 6,
+                                      right: currentMessage.sender == widget.currentUser.id ? 10 : 0,
+                                      left: currentMessage.sender != widget.currentUser.id ? 10 : 0,
+                                    ),
+                                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                                    decoration: BoxDecoration(
                                       color: currentMessage.sender == widget.currentUser.id
-                                          ? Colors.black
-                                          : Colors.white,
+                                          ? Colors.blue[200]
+                                          : Colors.green[200],
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: Text(
+                                      currentMessage.text!,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: currentMessage.sender == widget.currentUser.id
+                                            ? Colors.black
+                                            : Colors.white,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          );
+                                ],
+                              ),
+                            );
+                          } else {
+                            return Container(); // Handle null data gracefully
+                          }
                         },
                       );
                     } else if (snapshot.hasError) {

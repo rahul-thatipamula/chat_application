@@ -27,10 +27,7 @@ class AuthProvider extends StateNotifier<UserModel?> {
         return false;
       }
     } catch (e) {
-      // Handle error (e.g., invalid credentials)
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Sign-in error: ${e.toString()}'),
-      ));
+   
       state = null;
       return false;
     }
