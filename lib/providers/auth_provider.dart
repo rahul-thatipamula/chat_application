@@ -1,6 +1,8 @@
 import 'package:chat_app/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // UserProvider class for handling user authentication and user-related data
@@ -8,7 +10,7 @@ class AuthProvider extends StateNotifier<UserModel?> {
   AuthProvider() : super(null);
 
   // Sign-in method
-  Future<bool> signIn(String email, String password) async {
+  Future<bool> signIn(String email, String password,BuildContext context) async {
     try {
       UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
 
@@ -26,24 +28,28 @@ class AuthProvider extends StateNotifier<UserModel?> {
       }
     } catch (e) {
       // Handle error (e.g., invalid credentials)
-      print('Sign-in error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Sign-in error: ${e.toString()}'),
+      ));
       state = null;
       return false;
     }
   }
 
   // Sign-out method
-  Future<void> signOut() async {
+  Future<void> signOut(BuildContext context)async {
     try {
       await FirebaseAuth.instance.signOut();
       state = null; // Clear user state
     } catch (e) {
-      print('Sign-out error: $e');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Sign-out error: ${e.toString()}'),
+        ));
     }
   }
 
   // Register method
-  Future<bool> register(String email, String password, String username, String mobileNumber) async {
+  Future<bool> register(String email, String password, String username, String mobileNumber,BuildContext context)async {
     try {
       UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
 
@@ -68,8 +74,10 @@ class AuthProvider extends StateNotifier<UserModel?> {
       return true;
     } catch (e) {
       // Handle registration error
-      print('Registration error: $e');
-      state = null;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Registration error: ${e.toString()}'),
+      ));
+           state = null;
       return false;
     }
   }
